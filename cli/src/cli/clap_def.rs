@@ -7,116 +7,189 @@ pub fn get_clap() -> Command<'static> {
     .author(env!("CARGO_PKG_AUTHORS"))
     .about(env!("CARGO_PKG_DESCRIPTION"))
     .before_help(BANNER)
-    .after_help("github.com/marcSoda/taskman")
-    .subcommand(namespace_subcommand())
+    .after_help("https://github.com/marcSoda/raskman")
+    .subcommand(namespace())
     .subcommand(group_subcommand())
-    .subcommand(note_subcommand())
+    .subcommand(note())
     .subcommand(status_subcommand())
-    .subcommand(add_subcommand())
-    .subcommand(done_subcommand())
-    .subcommand(remove_subcommand())
-    .subcommand(edit_subcommand())
-    .subcommand(list_subcommand())
-    .subcommand(auth_subcommand())
-    .subcommand(sync_subcommand())
+    .subcommand(add())
+    .subcommand(done())
+    .subcommand(remove())
+    .subcommand(edit())
+    .subcommand(list())
+    .subcommand(auth())
+    .subcommand(sync())
     .subcommand(tag_subcommand())
 }
 
-pub fn add_subcommand() -> Command<'static> {
+//note: there is no add_template because add is always different
+
+fn list_template()  -> Command<'static> {
+    Command::new("list")
+        .visible_alias("l")
+        .visible_alias("ls")
+}
+
+fn remove_template()  -> Command<'static> {
+    Command::new("remove")
+        .visible_alias("r")
+        .visible_alias("rm")
+        .arg(Arg::new("remove_index")
+            .required(true)
+            .takes_value(true))
+}
+
+fn rename_template()  -> Command<'static> {
+    Command::new("rename")
+        .visible_alias("r")
+        .visible_alias("rn")
+        .arg(Arg::new("old_name")
+            .required(true)
+            .takes_value(true)
+            .help("Old Name"))
+        .arg(Arg::new("new_name")
+            .required(true)
+            .takes_value(true)
+            .help("New Name"))
+}
+
+//a limitation of clap is that we cannot accept multiple words as one arg
+//instead of using clap, I will likely just accept the entire stdin and parse out the subcommands
+fn add() -> Command<'static> {
     Command::new("add")
+        .about("Add a new task")
         .visible_alias("a")
 }
 
-pub fn done_subcommand() -> Command<'static> {
+fn done() -> Command<'static> {
     Command::new("done")
         .about("Mark a task as done")
         .visible_alias("d")
+        .arg(Arg::new("task_index")
+            .help("index of task")
+            .required(true)
+            .takes_value(true))
 }
 
-pub fn remove_subcommand() -> Command<'static> {
-    Command::new("remove")
+fn remove() -> Command<'static> {
+    remove_template()
         .about("Remove a task")
-        .visible_alias("rm")
-        .visible_alias("r")
 }
 
-pub fn edit_subcommand() -> Command<'static> {
+//same limitation as add()
+//instead of using clap, I will likely just accept the entire stdin and parse out the subcommands
+fn edit() -> Command<'static> {
     Command::new("edit")
         .about("Edit a task")
         .visible_alias("e")
 }
 
-pub fn list_subcommand() -> Command<'static> {
-    Command::new("list")
+//same limitation as add
+//instead of using clap, I will likely just accept the entire stdin and parse out the subcommands
+fn list() -> Command<'static> {
+    list_template()
         .about("List tasks")
-        .visible_alias("ls")
-        .visible_alias("l")
 }
 
-pub fn auth_subcommand() -> Command<'static> {
+fn auth() -> Command<'static> {
     Command::new("auth")
         .about("Authenticate with the server")
+        .arg(Arg::new("login")
+            .required(true)
+            .takes_value(true)
+            .help("login"))
+        .arg(Arg::new("password")
+            .required(true)
+            .takes_value(true)
+            .help("password"))
 }
 
-pub fn sync_subcommand() -> Command<'static> {
+fn sync() -> Command<'static> {
     Command::new("sync")
         .about("Synchronize with the server")
 }
 
-pub fn namespace_subcommand() -> Command<'static> {
+fn namespace() -> Command<'static> {
     Command::new("namespace")
         .about("Configure namespaces")
         .visible_alias("ns")
-        .visible_alias("c")
-        .visible_alias("context")
-        .subcommand(add_subcommand()
-            .about("Add a namespace")
-            .arg(Arg::new("namespace title")
+        .subcommand(Command::new("add")
+            .about("Add a new namespace"))
+            .visible_alias("a")
+            .arg(Arg::new("ns_name")
                 .required(true)
-                .takes_value(true)
-                .value_name("NAMESPACE_TITLE")
-                .help("title of namespace being created")
-                .index(1))
-        )
+                .takes_value(true))
+        .subcommand(remove_template()
+            .about("Remove a namespace"))
+        .subcommand(list_template()
+            .about("List all namespaces"))
 }
 
-//only left here because I made every other subcommand nest it. delete later
-fn namespace_add_subcommand() -> Command<'static> {
-    Command::new("add")
-        .about("Add a new namespace")
-        .visible_alias("a")
-        .arg(Arg::new("namespace title")
-            .required(true)
-            .takes_value(true)
-            .value_name("NAMESPACE_TITLE")
-            .help("title of namespace being created")
-            .index(1))
-}
-
-pub fn group_subcommand() -> Command<'static> {
+fn group_subcommand() -> Command<'static> {
     Command::new("group")
         .about("Configure groups")
         .visible_alias("g")
-        .subcommand(namespace_add_subcommand())
+        .subcommand(list_template()
+            .about("List all groups"))
+        .subcommand(rename_template()
+            .about("Rename group"))
+        .subcommand(Command::new("move")
+            .about("Move a group to a namespace")
+            .visible_alias("m")
+            .visible_alias("mv")
+            .arg(Arg::new("group_title")
+                .required(true)
+                .takes_value(true)
+                .help("title of group being moved"))
+            .arg(Arg::new("namespace_title")
+                .required(true)
+                .takes_value(true)
+                .help("title of namespace being mapped")))
 }
 
-pub fn note_subcommand() -> Command<'static> {
+fn note() -> Command<'static> {
     Command::new("note")
         .about("Configure notes")
         .visible_alias("n")
-        .subcommand(namespace_add_subcommand())
+        .subcommand(list_template()
+            .arg(Arg::new("task_index")
+                .help("index of task")
+                .required(true)
+                .takes_value(true)))
+        .subcommand(Command::new("add")
+            .about("Add a new note"))
+            .visible_alias("a")
+            .arg(Arg::new("task_index")
+                .help("index of task")
+                .required(true)
+                .takes_value(true))
+        .subcommand(remove_template()
+            .about("Remove a note"))
 }
 
-pub fn status_subcommand() -> Command<'static> {
+//TODO: make it so status can change task by task
+fn status_subcommand() -> Command<'static> {
     Command::new("status")
-        .about("Configure statuses")
+        .about("Configure status list")
         .visible_alias("s")
-        .subcommand(namespace_add_subcommand())
+        .subcommand(Command::new("add")
+            .about("Add a new status"))
+            .visible_alias("a")
+            .arg(Arg::new("status_name")
+                .required(true)
+                .takes_value(true))
+        .subcommand(remove_template()
+            .about("Remove a status"))
+        .subcommand(list_template()
+            .about("List all statuses"))
 }
 
-pub fn tag_subcommand() -> Command<'static> {
+fn tag_subcommand() -> Command<'static> {
     Command::new("tag")
         .about("Configure tags")
         .visible_alias("t")
-        .subcommand(namespace_add_subcommand())
+        .subcommand(list_template()
+            .about("List all tags"))
+        .subcommand(rename_template()
+            .about("Rename tag"))
 }
