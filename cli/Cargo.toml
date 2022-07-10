@@ -1,0 +1,10 @@
+[package]
+name = "taskman"
+authors = ["Marc Soda Jr <m@soda.fm>"]
+description = "Fast, Extensible CLI Task Manager"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rusqlite = "0.27.0"
+clap = "3.2.1"
