@@ -1,0 +1,54 @@
+* todo:
+- figure out a way for task statuses to be changed. reflect this in clap_def and rough man
+- figure out how to reflect that (some) add, (some) list, and (some) edit subcommands accept sentence args.
+
+* rough man
+** add
+- task: string
+** auth
+- username
+- password
+** done
+- task_index: int
+** edit
+- index: int
+- task: string
+** group
+- list
+- rename
+  - old_name: string
+  - new_name: string
+- move
+  - group_title: string
+  - namespace_title: string
+** list
+- filters: string (optional)
+** namespace
+- add
+  - name: string
+- rm
+  - name: string
+- list
+** note
+- list
+  - task_index: uint
+- add
+  - task_index: uint
+  - note: string
+- rm
+  - task_index: uint
+  - note_index: uint
+** remove
+- task_index
+** status
+- list
+- add
+  - name: string
+- rm
+  - name: string
+** sync
+** tag
+- list
+- rename
+  - old_name
+  - new_name
