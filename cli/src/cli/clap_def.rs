@@ -1,3 +1,5 @@
+use std::any::Any;
+
 use crate::BANNER;
 use clap::{Command, Arg};
 
@@ -9,9 +11,9 @@ pub fn get_clap() -> Command<'static> {
     .before_help(BANNER)
     .after_help("https://github.com/marcSoda/raskman")
     .subcommand(namespace())
-    .subcommand(group_subcommand())
+    .subcommand(group())
     .subcommand(note())
-    .subcommand(status_subcommand())
+    .subcommand(status())
     .subcommand(add())
     .subcommand(done())
     .subcommand(remove())
@@ -19,7 +21,7 @@ pub fn get_clap() -> Command<'static> {
     .subcommand(list())
     .subcommand(auth())
     .subcommand(sync())
-    .subcommand(tag_subcommand())
+    .subcommand(tag())
 }
 
 //note: there is no add_template because add is always different
@@ -34,9 +36,6 @@ fn remove_template()  -> Command<'static> {
     Command::new("remove")
         .visible_alias("r")
         .visible_alias("rm")
-        .arg(Arg::new("remove_index")
-            .required(true)
-            .takes_value(true))
 }
 
 fn rename_template()  -> Command<'static> {
@@ -53,12 +52,15 @@ fn rename_template()  -> Command<'static> {
             .help("New Name"))
 }
 
-//a limitation of clap is that we cannot accept multiple words as one arg
-//instead of using clap, I will likely just accept the entire stdin and parse out the subcommands
 fn add() -> Command<'static> {
     Command::new("add")
         .about("Add a new task")
         .visible_alias("a")
+        .arg(Arg::new("task_text")
+            .help("Task text")
+            .required(true)
+            .multiple_values(true)
+            .takes_value(true))
 }
 
 fn done() -> Command<'static> {
@@ -66,29 +68,46 @@ fn done() -> Command<'static> {
         .about("Mark a task as done")
         .visible_alias("d")
         .arg(Arg::new("task_index")
-            .help("index of task")
+            .help("Index of task")
             .required(true)
+            .value_parser(clap::value_parser!(u16))
             .takes_value(true))
 }
 
 fn remove() -> Command<'static> {
     remove_template()
         .about("Remove a task")
+        .arg(Arg::new("task_index")
+            .required(true)
+            .takes_value(true)
+            .value_parser(clap::value_parser!(u16))
+            .help("Index of task to remove"))
 }
 
-//same limitation as add()
-//instead of using clap, I will likely just accept the entire stdin and parse out the subcommands
 fn edit() -> Command<'static> {
     Command::new("edit")
         .about("Edit a task")
         .visible_alias("e")
+        .arg(Arg::new("task_index")
+            .help("Index of task to override")
+            .required(true)
+            .value_parser(clap::value_parser!(u16))
+            .takes_value(true))
+        .arg(Arg::new("override_text")
+            .help("Task override text")
+            .required(true)
+            .multiple_values(true)
+            .takes_value(true))
 }
 
-//same limitation as add
-//instead of using clap, I will likely just accept the entire stdin and parse out the subcommands
 fn list() -> Command<'static> {
     list_template()
         .about("List tasks")
+        .arg(Arg::new("query")
+            .required(false)
+            .takes_value(true)
+            .multiple_values(true)
+            .help("Query text"))
 }
 
 fn auth() -> Command<'static> {
@@ -113,19 +132,26 @@ fn namespace() -> Command<'static> {
     Command::new("namespace")
         .about("Configure namespaces")
         .visible_alias("ns")
-        .subcommand(Command::new("add")
-            .about("Add a new namespace"))
-            .visible_alias("a")
-            .arg(Arg::new("ns_name")
-                .required(true)
-                .takes_value(true))
+        .subcommand(rename_template()
+            .about("Rename a namespace"))
         .subcommand(remove_template()
-            .about("Remove a namespace"))
+            .about("Remove a namespace")
+            .arg(Arg::new("namespace_title")
+                .required(true)
+                .takes_value(true)
+                .help("Title of namespace to remove")))
         .subcommand(list_template()
             .about("List all namespaces"))
+        .subcommand(Command::new("add")
+            .about("Add a new namespace")
+            .visible_alias("a")
+            .arg(Arg::new("namespace_title")
+                .required(true)
+                .help("Title of namespace to add")
+                .takes_value(true)))
 }
 
-fn group_subcommand() -> Command<'static> {
+fn group() -> Command<'static> {
     Command::new("group")
         .about("Configure groups")
         .visible_alias("g")
@@ -155,36 +181,53 @@ fn note() -> Command<'static> {
             .arg(Arg::new("task_index")
                 .help("index of task")
                 .required(true)
+                .value_parser(clap::value_parser!(u16))
                 .takes_value(true)))
         .subcommand(Command::new("add")
-            .about("Add a new note"))
+            .about("Add a new note")
             .visible_alias("a")
             .arg(Arg::new("task_index")
                 .help("index of task")
                 .required(true)
+                .value_parser(clap::value_parser!(u16))
                 .takes_value(true))
+            .arg(Arg::new("note_text")
+                .help("text of the note")
+                .required(true)
+                .multiple_values(true)
+                .takes_value(true)))
         .subcommand(remove_template()
-            .about("Remove a note"))
+            .about("Remove a note")
+            .arg(Arg::new("note_index")
+                .required(true)
+                .takes_value(true)
+                .value_parser(clap::value_parser!(u16))
+                .help("Index of note to remove")))
 }
 
 //TODO: make it so status can change task by task
-fn status_subcommand() -> Command<'static> {
+fn status() -> Command<'static> {
     Command::new("status")
         .about("Configure status list")
         .visible_alias("s")
         .subcommand(Command::new("add")
-            .about("Add a new status"))
+            .about("Add a new status")
             .visible_alias("a")
             .arg(Arg::new("status_name")
                 .required(true)
-                .takes_value(true))
+                .help("Name of status to add")
+                .takes_value(true)))
         .subcommand(remove_template()
-            .about("Remove a status"))
+            .about("Remove a status")
+            .arg(Arg::new("status_name")
+                .required(true)
+                .takes_value(true)
+                .help("Name of status to remove")))
         .subcommand(list_template()
             .about("List all statuses"))
 }
 
-fn tag_subcommand() -> Command<'static> {
+fn tag() -> Command<'static> {
     Command::new("tag")
         .about("Configure tags")
         .visible_alias("t")
