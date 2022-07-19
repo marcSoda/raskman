@@ -1,7 +1,28 @@
 * todo:
-- figure out a way for task statuses to be changed. reflect this in clap_def and rough man
-- figure out how to reflect that (some) add, (some) list, and (some) edit subcommands accept sentence args.
-
+- [ ] use serde for serialize/deserialize
+- [ ] figure out a way for task statuses to be changed. reflect this in clap_def and rough man
+- [X] figure out how to reflect that (some) add, (some) list, and (some) edit subcommands accept sentence args.
+- [ ] clap autocomplete
+- [ ] undo previous action (have a file that contains a description of the last action that can be rolled back)
+* features:
+- [ ] namespace definitions like taskwarrior
+- [ ] task recurrence similar to ultralist, but with more options like mon, tues, etc
+- [ ] when editing, you may append to a task or override it
+- [ ] due dates and times (date:12dec time:12:30am)
+- [ ] .raskrc (maybe store some info there like statuses and namespaces)
+  - maybe: make a default status config exist, but can be changed. different donestates and todostates like org agenda!
+* notes:
+- + or t: for tags
+# - @ or n: for namespaces | EDIT: namespaces are now defined with tags and/or a due date or something like that
+- @ or g: for status
+- % or s: for group
+- use '\' for escaping these chars
+* .raskrc:
+- status config (multiple done/todo states)
+- namespace config
+- group config
+- themes
+- default due time if no due time specified
 * rough man
 ** add
 - task: string

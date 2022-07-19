@@ -1,0 +1,21 @@
+[
+    {
+        "ns_name": "work",
+        "task_uids": ["0", "1", "2"]
+    },
+    {
+        "ns_name": "personal",
+        "task_uids": ["0", "8"]
+    }
+]
+
+[
+    {
+        "tag": "amazon",
+        "count": 12
+    },
+    {
+        "tag": "bestbuy",
+        "count": 2
+    }
+]

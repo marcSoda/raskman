@@ -1,9 +1,8 @@
-use std::any::Any;
-
 use crate::BANNER;
-use clap::{Command, Arg};
+use clap::{Command, Arg, ArgMatches};
 
-pub fn get_clap() -> Command<'static> {
+// pub fn get_clap() -> Command<'static> {
+pub fn get_clap() -> ArgMatches {
     Command::new(env!("CARGO_PKG_NAME"))
     .version(env!("CARGO_PKG_VERSION"))
     .author(env!("CARGO_PKG_AUTHORS"))
@@ -21,10 +20,10 @@ pub fn get_clap() -> Command<'static> {
     .subcommand(list())
     .subcommand(auth())
     .subcommand(sync())
+    .subcommand(undo())
     .subcommand(tag())
+    .get_matches()
 }
-
-//note: there is no add_template because add is always different
 
 fn list_template()  -> Command<'static> {
     Command::new("list")
@@ -126,6 +125,11 @@ fn auth() -> Command<'static> {
 fn sync() -> Command<'static> {
     Command::new("sync")
         .about("Synchronize with the server")
+}
+
+fn undo() -> Command<'static> {
+    Command::new("undo")
+        .about("Undo last task action")
 }
 
 fn namespace() -> Command<'static> {

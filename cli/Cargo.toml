@@ -6,7 +6,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rusqlite = "0.27.0"
 clap = "3.2.1"
-
-#authors = ["Marc Soda Jr <m@soda.fm>Chenla Long Jr <longchenlajr@gmail.com"]
+log = "0.4.17"
+env_logger = "0.9"
+uuid = { version = "1.1.2", features = ["v4", "fast-rng"] }
