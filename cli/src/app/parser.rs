@@ -1,9 +1,8 @@
-use std::{time::Instant};
+use chrono::Utc;
 
 use crate::app::{
     task::Task,
     group::Group,
-    namespace::Namespace,
     tag::Tag,
     status::{Status, StatType},
     errors::SpecifierError,
@@ -13,13 +12,13 @@ use crate::app::{
 pub fn parse_task(task_list: Vec<&str>) -> Result<Task, SpecifierError> {
     let mut task = Task {
         uuid: uuid::Uuid::new_v4().simple().to_string(),
-        text: task_list.join(" "),
+        description: task_list.join(" "),
         groups: None,
-        namespaces: vec![Namespace::default()],
         notes: None,
         tags: None,
         status: None,
-        created: Instant::now(),
+        due: None,
+        created: Utc::now(),
         finished: None,
         recur: None,
         until: None,
@@ -43,17 +42,16 @@ pub fn parse_task(task_list: Vec<&str>) -> Result<Task, SpecifierError> {
         //match on the first char
         match first {
             '+' => { task.tags = Some(parse_tag(&cmd[1..], task.tags)?); },
-            '@' => { task.status = Some(parse_status(&cmd[1..], task.status)?); },
+            '@' => { task.status = Some(parse_status(&cmd[1..])?); },
             '%' => { task.groups = Some(parse_group(&cmd[1..], task.groups)?); },
             _   => {
                 let split: Vec<&str> = cmd.split(':').collect();
                 if split.len() != 2 {
                     return Err(SpecifierError(cmd));
                 }
-
                 match split[0] {
                     "t" => { task.tags = Some(parse_tag(split[1], task.tags)?); },
-                    "s" => { task.status = Some(parse_status(split[1], task.status)?); },
+                    "s" => { task.status = Some(parse_status(split[1])?); },
                     "g" => { task.groups = Some(parse_group(split[1], task.groups)?); },
                     _   => return Err(SpecifierError(cmd))
                 };
@@ -78,7 +76,7 @@ fn parse_tag(tag_name: &str, tags: Option<Vec<Tag>>) -> Result<Vec<Tag>, Specifi
 }
 
 fn parse_group(group_name: &str, groups: Option<Vec<Group>>) -> Result<Vec<Group>, SpecifierError> {
-    let group = Group::new(group_name.to_string(), Namespace::default());
+    let group = Group::new(group_name.to_string());
     match groups {
         Some(mut g) => {
             g.push(group);
@@ -88,7 +86,7 @@ fn parse_group(group_name: &str, groups: Option<Vec<Group>>) -> Result<Vec<Group
     }
 }
 
-fn parse_status(status_name: &str, status: Option<Status>) -> Result<Status, SpecifierError> {
+fn parse_status(status_name: &str) -> Result<Status, SpecifierError> {
     Ok(Status::new(status_name.to_string(), StatType::Todo))
     //THIS IS NOT RIGHT. should do more than just create a new status
     //should verify that given status exists then apply it

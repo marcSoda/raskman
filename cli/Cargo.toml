@@ -1,12 +1,17 @@
 [package]
-name = "rask"
-authors = ["Marc Soda Jr   <m@soda.fm> \nChenla Long Jr <longchenlajr@gmail.com"]
+name        = "rask"
+authors     = ["Marc Soda Jr   <m@soda.fm> \nChenla Long Jr <longchenlajr@gmail.com"]
 description = "Fast, Extensible CLI Task Manager"
-version = "0.1.0"
-edition = "2021"
+version     = "0.1.0"
+edition     = "2021"
 
 [dependencies]
-clap = "3.2.1"
-log = "0.4.17"
-env_logger = "0.9"
-uuid = { version = "1.1.2", features = ["v4", "fast-rng"] }
+clap           = "3.2.1"
+log            = "0.4.17"
+env_logger     = "0.9"
+uuid           = { version = "1.1.2", features = ["v4", "fast-rng"] }
+serde          = { version = "1.0.139", features = ["derive"] }
+serde_json     = "*"
+serde_derive   = "*"
+chrono         = { version = "0.4.19", features = ["serde"] }
+prettytable-rs = "0.8.0"

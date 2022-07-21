@@ -1,6 +1,7 @@
-#[derive(Clone, Debug)]
+use serde::{Deserialize, Serialize};
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Tag {
-    name: String,
+    pub name: String,
     // numTasks: u16,
     // numProg: u16,
     // numDone: u16,

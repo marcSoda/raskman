@@ -8,7 +8,7 @@ use crate::{
 //async?
 //don't need to worry about catching incorrect args because clap does it for us
 pub fn dispatch_commands(matches: &ArgMatches, rask: Rask) -> Result<Rask, Box<dyn Error + '_>> {
-    let mut new_rask = rask.clone(); //to be returned. todo: maybe doesn't need to be?
+    let mut new_rask = rask.clone(); //to be returned.
     if let Some(cmd) = matches.subcommand_name() {
         let subcmd_matches = matches.subcommand_matches(cmd).unwrap();
         if cmd == "group" || cmd == "namespace" || cmd == "note" || cmd == "status" || cmd == "tag" {
@@ -73,8 +73,10 @@ pub fn dispatch_commands(matches: &ArgMatches, rask: Rask) -> Result<Rask, Box<d
                     debug!("override_text: {:?}", override_text);
                 } "list" => {
                     debug!("LIST");
-                    let query = collect_arg_list(subcmd_matches, "query");
-                    debug!("note_text: {:?}", query);
+                    let query_list = collect_arg_list(subcmd_matches, "query");
+                    debug!("query_list: {:?}", query_list);
+                    // let query = parser::parse_query(query_list);
+                    rask.disp();
                 } "remove" => {
                     debug!("REMOVE");
                     let task_index = subcmd_matches.get_one::<u16>("task_index").unwrap();

@@ -1,5 +1,3 @@
-#![feature(backtrace)]
-
 use std::fmt;
 
 //A specifier error is thrown when the user inputs an invalid specifier

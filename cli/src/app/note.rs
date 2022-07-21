@@ -1,18 +1,22 @@
-use std::time::Instant; //maybe just use date instead of instant
+use serde::{Deserialize, Serialize};
+use chrono::{
+    DateTime,
+    Utc,
+};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Note {
     text: String,
-    created: Instant,
+    created: DateTime<Utc>,
 }
 
-impl Note {
-    pub fn new(text_list: Vec<&str>) -> Self {
-        let text = text_list.join(" ");
-        Note {
-            text,
-            created: Instant::now(),
-        }
+// impl Note {
+//     pub fn new(text_list: Vec<&str>) -> Self {
+//         let text = text_list.join(" ");
+//         Note {
+//             text,
+//             created: Utc::now(),
+//         }
 
-    }
-}
+//     }
+// }

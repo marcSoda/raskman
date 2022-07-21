@@ -1,9 +1,8 @@
-use crate::app::namespace::Namespace;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Group {
-    name: String,
-    namespace: Namespace,
+    pub name: String,
     // numTasks: u16,
     // numProg: u16,
     // numDone: u16,
@@ -11,10 +10,9 @@ pub struct Group {
 }
 
 impl Group {
-    pub fn new(name: String, namespace: Namespace) -> Self {
+    pub fn new(name: String) -> Self {
         Group {
             name,
-            namespace,
         }
     }
 }

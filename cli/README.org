@@ -1,5 +1,5 @@
 * todo:
-- [ ] use serde for serialize/deserialize
+- [X] use serde for serialize/deserialize
 - [ ] figure out a way for task statuses to be changed. reflect this in clap_def and rough man
 - [X] figure out how to reflect that (some) add, (some) list, and (some) edit subcommands accept sentence args.
 - [ ] clap autocomplete
