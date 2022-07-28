@@ -2,8 +2,11 @@
 - [X] use serde for serialize/deserialize
 - [ ] figure out a way for task statuses to be changed. reflect this in clap_def and rough man
 - [X] figure out how to reflect that (some) add, (some) list, and (some) edit subcommands accept sentence args.
-- [ ] clap autocomplete
 - [ ] undo previous action (have a file that contains a description of the last action that can be rolled back)
+* future:
+- [ ] clap autocomplete
+- [ ] make specifiers have colors in list output eg all g:group is red and +tag is blue etc
+  - maybe have these colors in the discription instead of having a column for tag and group?
 * features:
 - [ ] namespace definitions like taskwarrior
 - [ ] task recurrence similar to ultralist, but with more options like mon, tues, etc
@@ -17,7 +20,7 @@
 - @ or g: for status
 - % or s: for group
 - use '\' for escaping these chars
-* .raskrc:
+* ~/.config/rask/raskrc:
 - status config (multiple done/todo states)
 - namespace config
 - group config

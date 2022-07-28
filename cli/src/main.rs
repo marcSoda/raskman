@@ -6,6 +6,8 @@ mod app;
 
 use cli::banner::BANNER;
 use app::Rask;
+
+use std::path::Path;
 use std::error::Error;
 use std::fs::OpenOptions;
 use std::io::{
@@ -16,12 +18,23 @@ use std::io::{
 fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
     let clap = cli::get_clap();
+    //check if data existed before running
+    let data_existed = Path::new("data.json").exists();
+    //open file for writing. creat if not exists
     let mut file = OpenOptions::new()
         .read(true)
         .write(true)
         .create(true)
         .open("data.json")?;
-    let rask: Rask = serde_json::from_reader(&file).unwrap_or_else(|_| Rask::new());
+    //read file into rask struct
+    let rask: Rask = match serde_json::from_reader(&file) {
+        Ok(r) => r,
+        Err(e) => {
+            //if data existed and from_reader errors: throw error
+            if data_existed { return Err(Box::new(e)); }
+            Rask::new()
+        },
+    };
     file.set_len(0)?;
     file.seek(SeekFrom::Start(0))?;
 

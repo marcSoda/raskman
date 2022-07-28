@@ -1,10 +1,6 @@
 use serde::{Deserialize, Serialize};
 use prettytable::{
     Table,
-    // Row,
-    // Cell,
-    // Attr,
-    // color,
     format,
 };
 
@@ -18,24 +14,27 @@ pub mod parser;
 pub mod errors;
 
 use task::Task;
+use namespace::Namespace;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Rask {
     // login: String, use when integration authentication
     // pass: String,
     pub task_list: Option<Vec<Task>>,
-    //status_list: Vec<Status>,
+    pub current_namespace: Namespace,
 }
 
 impl Rask {
     pub fn new() -> Self {
         Rask {
             task_list: None,
+            current_namespace: Namespace::default(),
         }
     }
 
     //todo: maybe ret result??
     pub fn disp(&self) {
+        print!("Namespace: {}", self.current_namespace.name);
         // Create the table
         let mut table = Table::new();
         let format = format::FormatBuilder::new()
@@ -44,7 +43,7 @@ impl Rask {
             .build();
         table.set_format(format);
 
-        table.set_titles(row![u->"ID", u->"Group", u->"Tags", u->"Description"]);
+        table.set_titles(row![uFg->"ID", u->"Group", u->"Tags", u->"Description"]);
 
         let mut ctr = 0;
         for task in self.task_list.iter().flatten() {
@@ -60,7 +59,7 @@ impl Rask {
                 tags += &tag.name;
                 tags += " ";
             }
-            table.add_row(row![ctr, groups, tags, task.description]);
+            table.add_row(row![Fg->ctr, groups, tags, task.description]);
         }
         println!();
         table.printstd();

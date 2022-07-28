@@ -2,12 +2,11 @@ use serde::{Deserialize, Serialize};
 //maybe make definition an option
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Namespace {
-    name: String,
+    pub name: String,
     definition: String,
-    active: bool,
 }
 
-// impl Namespace {
+impl Namespace {
 //     pub fn new(name: String, definition: String) -> Self {
 //         Namespace {
 //             name,
@@ -16,11 +15,10 @@ pub struct Namespace {
 //         }
 //     }
 
-//     pub fn default() -> Self {
-//         Namespace {
-//             name: "default".to_string(),
-//             definition: "".to_string(),
-//             active: false
-//         }
-//     }
-// }
+    pub fn default() -> Self {
+        Namespace {
+            name: "default".to_string(),
+            definition: "".to_string(),
+        }
+    }
+}
