@@ -39,10 +39,6 @@ impl Rask {
         }
     }
 
-    pub fn len(&self) -> u16 {
-        self.task_list.len() as u16
-    }
-
     //get a mutable reference to a task in self.task_list
     fn get_mut_task_by_id(&mut self, task_index: u16) -> Result<&mut Task, TaskNotFoundError> {
         for t in self.task_list.iter_mut() {
@@ -78,13 +74,13 @@ impl Rask {
 
         for task in self.task_list.iter_mut() {
             let mut groups: String = "".to_string();
-            for group in task.groups.iter().flatten() {
+            for group in task.groups.iter() {
                 groups += &group.name;
                 groups += " ";
             }
 
             let mut tags: String = "".to_string();
-            for tag in task.tags.iter().flatten() {
+            for tag in task.tags.iter() {
                 tags += &tag.name;
                 tags += " ";
             }

@@ -41,7 +41,7 @@ pub fn dispatch_commands(matches: &ArgMatches, mut rask: Rask) -> Result<Rask, B
                     debug!("ADD");
                     let task_text = collect_arg_list(subcmd_matches, "task_text");
                     debug!("task_text: {:?}", task_text);
-                    let task = parser::parse_task(task_text, rask.len() + 1);
+                    let task = parser::parse_task(task_text, rask.task_list.len() as u16 + 1);
                     match task {
                         Ok(t) => {
                             new_rask.task_list.push(t);
