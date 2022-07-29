@@ -18,6 +18,24 @@ impl fmt::Debug for SpecifierError<'_> {
     }
 }
 
+
+pub struct TaskNotFoundError(pub u16);
+
+impl std::error::Error for TaskNotFoundError { }
+
+impl fmt::Display for TaskNotFoundError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "TaskNotFoundError: \"{}\" is an invalid task_id", self.0)
+    }
+}
+
+impl fmt::Debug for TaskNotFoundError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "TaskNotFoundError: \"{}\" is an invalid task_id. file: {}, line: {}", self.0, file!(), line!())
+    }
+}
+
+
 pub struct UncoveredError<'a>(pub &'a str);
 
 impl std::error::Error for UncoveredError<'_> { }

@@ -9,14 +9,15 @@ use crate::app::{
 };
 
 // pub fn get_task(task_list: Vec<&str>) -> Result<Task, SpecifierErr> {
-pub fn parse_task(task_list: Vec<&str>) -> Result<Task, SpecifierError> {
+pub fn parse_task(task_list: Vec<&str>, num_tasks: u16) -> Result<Task, SpecifierError> {
     let mut task = Task {
         uuid: uuid::Uuid::new_v4().simple().to_string(),
+        index: num_tasks,
         description: task_list.join(" "),
         groups: None,
         notes: None,
         tags: None,
-        status: None,
+        status: Status::default(),
         due: None,
         created: Utc::now(),
         finished: None,
@@ -42,8 +43,8 @@ pub fn parse_task(task_list: Vec<&str>) -> Result<Task, SpecifierError> {
         //match on the first char
         match first {
             '+' => { task.tags = Some(parse_tag(&cmd[1..], task.tags)?); },
-            '@' => { task.status = Some(parse_status(&cmd[1..])?); },
-            '%' => { task.groups = Some(parse_group(&cmd[1..], task.groups)?); },
+            '%' => { task.status = parse_status(&cmd[1..])?; },
+            '@' => { task.groups = Some(parse_group(&cmd[1..], task.groups)?); },
             _   => {
                 let split: Vec<&str> = cmd.split(':').collect();
                 if split.len() != 2 {
@@ -51,7 +52,7 @@ pub fn parse_task(task_list: Vec<&str>) -> Result<Task, SpecifierError> {
                 }
                 match split[0] {
                     "t" => { task.tags = Some(parse_tag(split[1], task.tags)?); },
-                    "s" => { task.status = Some(parse_status(split[1])?); },
+                    "s" => { task.status = parse_status(split[1])?; },
                     "g" => { task.groups = Some(parse_group(split[1], task.groups)?); },
                     _   => return Err(SpecifierError(cmd))
                 };

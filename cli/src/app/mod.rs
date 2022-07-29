@@ -14,6 +14,7 @@ pub mod parser;
 pub mod errors;
 
 use task::Task;
+use errors::TaskNotFoundError;
 use namespace::Namespace;
 
 use crate::app::status::Status;
@@ -22,7 +23,7 @@ use crate::app::status::Status;
 pub struct Rask {
     // login: String, use when integration authentication
     // pass: String,
-    pub task_list: Option<Vec<Task>>,
+    pub task_list: Vec<Task>,
     pub current_namespace: Namespace,
 }
 
@@ -33,13 +34,37 @@ pub struct Rask {
 impl Rask {
     pub fn new() -> Self {
         Rask {
-            task_list: None,
+            task_list: vec![],
             current_namespace: Namespace::default(),
         }
     }
 
+    pub fn len(&self) -> u16 {
+        self.task_list.len() as u16
+    }
+
+    //get a mutable reference to a task in self.task_list
+    fn get_mut_task_by_id(&mut self, task_index: u16) -> Result<&mut Task, TaskNotFoundError> {
+        for t in self.task_list.iter_mut() {
+            if t.index == task_index { return Ok(t); }
+        }
+        Err(TaskNotFoundError(task_index))
+    }
+
+    pub fn update_status(&mut self, task_index: u16, new_status: Status) -> Result<(), TaskNotFoundError> {
+        let t = self.get_mut_task_by_id(task_index)?;
+        let old_stat_name_1 = "%".to_string() + &t.status.name;
+        let old_stat_name_2 = "s:".to_string() + &t.status.name;
+        let new_stat_name_1 = "%".to_string() + &new_status.name;
+        let new_stat_name_2 = "s:".to_string() + &new_status.name;
+        t.description = t.description.replace(&old_stat_name_1, &new_stat_name_1);
+        t.description = t.description.replace(&old_stat_name_2, &new_stat_name_2);
+        t.status = new_status;
+        Ok(())
+    }
+
     //todo: maybe ret result??
-    pub fn disp(&self) {
+    pub fn disp(&mut self) {
         // Create the table
         let mut table = Table::new();
         let format = format::FormatBuilder::new()
@@ -51,10 +76,7 @@ impl Rask {
 
         table.set_titles(row![cbFy->"ID", cb->"Description", cbFr->"Status", cbFb->"Group", cbFg->"Tags"]);
 
-        let mut ctr = 0;
-        for task in self.task_list.iter().flatten() {
-            ctr+=1;
-
+        for task in self.task_list.iter_mut() {
             let mut groups: String = "".to_string();
             for group in task.groups.iter().flatten() {
                 groups += &group.name;
@@ -67,9 +89,10 @@ impl Rask {
                 tags += " ";
             }
 
-            let stat_name = task.status.clone().unwrap_or_else(Status::undefined).name;
+            // let stat_name = task.status.clone().unwrap_or_else(Status::undefined).name;
+            let stat_name = task.status.clone().name;
 
-            table.add_row(row![Fy->ctr, colorize(task.description.clone()), stat_name, groups, tags]);
+            table.add_row(row![Fy->task.index, colorize(task.description.clone()), stat_name, groups, tags]);
         }
         println!("\n\x1b[35mNamespace: {}\x1b[0m", self.current_namespace.name);
         table.printstd();
@@ -89,8 +112,8 @@ fn colorize(s: String) -> String {
         //match on the first char
         match first {
             '+' => { *tok = "\x1b[32m".to_string() + &*tok + &"\x1b[0m".to_string(); },
-            '@' => { *tok = "\x1b[31m".to_string() + &*tok + &"\x1b[0m".to_string(); },
-            '%' => { *tok = "\x1b[94m".to_string() + &*tok + &"\x1b[0m".to_string(); },
+            '%' => { *tok = "\x1b[31m".to_string() + &*tok + &"\x1b[0m".to_string(); },
+            '@' => { *tok = "\x1b[94m".to_string() + &*tok + &"\x1b[0m".to_string(); },
             _   => {
                 if !tok.contains(':') { continue; }
                 let split: Vec<&str> = tok.split(':').collect();

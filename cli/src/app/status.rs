@@ -2,10 +2,8 @@ use serde::{Deserialize, Serialize};
 //for different done and todo statues
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum StatType {
-    Done,
-    Doing,
     Todo,
-    None,
+    Done,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -22,10 +20,11 @@ impl Status {
         }
     }
 
-    pub fn undefined() -> Self {
+    //TODO: import default status info from raskrc
+    pub fn default() -> Self {
         Status {
-            name: " ".to_string(),
-            stat_type: StatType::None,
+            name: "todo".to_string(),
+            stat_type: StatType::Todo,
         }
     }
 }

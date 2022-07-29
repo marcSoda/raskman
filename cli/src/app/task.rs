@@ -14,11 +14,12 @@ use crate::app::{
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Task {
     pub uuid: String,
+    pub index: u16,
     pub description: String,
     pub groups: Option<Vec<Group>>,
     pub notes: Option<Vec<Note>>,
     pub tags: Option<Vec<Tag>>,
-    pub status: Option<Status>,
+    pub status: Status,
     pub due: Option<DateTime<Utc>>,
     pub created: DateTime<Utc>,
     pub finished: Option<DateTime<Utc>>,

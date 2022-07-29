@@ -2,16 +2,20 @@ use clap::ArgMatches;
 use std::error::Error;
 use crate::{
     Rask,
-    app::{ parser, errors::UncoveredError },
+    app::{
+        parser,
+        errors::UncoveredError,
+        status::{Status, StatType}
+    },
 };
 
 //async?
 //don't need to worry about catching incorrect args because clap does it for us
-pub fn dispatch_commands(matches: &ArgMatches, rask: Rask) -> Result<Rask, Box<dyn Error + '_>> {
+pub fn dispatch_commands(matches: &ArgMatches, mut rask: Rask) -> Result<Rask, Box<dyn Error + '_>> {
     let mut new_rask = rask.clone(); //to be returned.
     if let Some(cmd) = matches.subcommand_name() {
         let subcmd_matches = matches.subcommand_matches(cmd).unwrap();
-        if cmd == "group" || cmd == "namespace" || cmd == "note" || cmd == "status" || cmd == "tag" {
+        if cmd == "group" || cmd == "namespace" || cmd == "note" || cmd == "tag" {
             let subcmd_name = subcmd_matches.subcommand_name().unwrap();
             let nest_subcmd_matches = subcmd_matches.subcommand_matches(subcmd_name).unwrap();
             match cmd {
@@ -24,9 +28,6 @@ pub fn dispatch_commands(matches: &ArgMatches, rask: Rask) -> Result<Rask, Box<d
                 } "note" => {
                     debug!("NOTE");
                     dispatch_note(nest_subcmd_matches, subcmd_name)?;
-                } "status" => {
-                    debug!("STATUS");
-                    dispatch_status(nest_subcmd_matches, subcmd_name)?;
                 } "tag" => {
                     debug!("TAG");
                     dispatch_tag(nest_subcmd_matches, subcmd_name)?;
@@ -40,17 +41,10 @@ pub fn dispatch_commands(matches: &ArgMatches, rask: Rask) -> Result<Rask, Box<d
                     debug!("ADD");
                     let task_text = collect_arg_list(subcmd_matches, "task_text");
                     debug!("task_text: {:?}", task_text);
-                    let task = parser::parse_task(task_text);
+                    let task = parser::parse_task(task_text, rask.len() + 1);
                     match task {
                         Ok(t) => {
-                            match rask.task_list {
-                                Some(_) => {
-                                    new_rask.task_list.as_mut().unwrap().push(t);
-                                },
-                                None => {
-                                    new_rask.task_list = Some(vec![t]);
-                                }
-                            };
+                            new_rask.task_list.push(t);
                             return Ok(new_rask);
                         },
                         Err(e) => {
@@ -69,8 +63,9 @@ pub fn dispatch_commands(matches: &ArgMatches, rask: Rask) -> Result<Rask, Box<d
                     debug!("task_index: {}", task_index);
                 } "edit" => {
                     debug!("EDIT");
+                    let task_index = subcmd_matches.get_one::<u16>("task_index").unwrap();
                     let override_text = collect_arg_list(subcmd_matches, "override_text");
-                    debug!("override_text: {:?}", override_text);
+                    debug!("task_index: {:?} | override_text: {:?}", task_index, override_text);
                 } "list" => {
                     debug!("LIST");
                     let query_list = collect_arg_list(subcmd_matches, "query");
@@ -81,6 +76,12 @@ pub fn dispatch_commands(matches: &ArgMatches, rask: Rask) -> Result<Rask, Box<d
                     debug!("REMOVE");
                     let task_index = subcmd_matches.get_one::<u16>("task_index").unwrap();
                     debug!("task_index: {}", task_index);
+                } "status" => {
+                    debug!("STATUS");
+                    let task_index = subcmd_matches.get_one::<u16>("task_index").unwrap();
+                    let new_status_string = subcmd_matches.get_one::<String>("new_status").unwrap();
+                    let new_status = Status::new(new_status_string.to_string(), StatType::Todo);
+                    new_rask.update_status(*task_index, new_status)?;
                 } "sync" => {
                     debug!("SYNC");
                 } "undo" => {
@@ -91,7 +92,7 @@ pub fn dispatch_commands(matches: &ArgMatches, rask: Rask) -> Result<Rask, Box<d
             };
         };
     }
-    Ok(rask)
+    Ok(new_rask)
 }
 
 fn dispatch_note <'a>(matches: &ArgMatches, cmd: &'a str) -> Result<(), UncoveredError<'a>> {
@@ -115,25 +116,6 @@ fn dispatch_note <'a>(matches: &ArgMatches, cmd: &'a str) -> Result<(), Uncovere
             debug!("name: {:?}", name);
         } _ => {
             debug!("NOT COVERED");
-            return Err(UncoveredError(cmd));
-        }
-    }
-    Ok(())
-}
-
-fn dispatch_status<'a>(matches: &ArgMatches, cmd: &'a str) -> Result<(), UncoveredError<'a>> {
-    match cmd {
-        "add" => {
-            debug!("add");
-            let status_name = matches.get_one::<String>("status_name").unwrap();
-            debug!("status_name: {}", status_name);
-        } "list" => {
-            debug!("LIST");
-        } "remove" => {
-            debug!("RENAME");
-            let status_name = matches.get_one::<String>("status_name").unwrap();
-            debug!("status_name: {}", status_name);
-        } _ => {
             return Err(UncoveredError(cmd));
         }
     }
