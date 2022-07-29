@@ -3,13 +3,15 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum StatType {
     Done,
+    Doing,
     Todo,
+    None,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Status {
-    name: String,
-    stat_type: StatType,
+    pub name: String,
+    pub stat_type: StatType,
 }
 
 impl Status {
@@ -17,6 +19,13 @@ impl Status {
         Status {
             name,
             stat_type,
+        }
+    }
+
+    pub fn undefined() -> Self {
+        Status {
+            name: " ".to_string(),
+            stat_type: StatType::None,
         }
     }
 }

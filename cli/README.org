@@ -1,6 +1,7 @@
 * todo:
 - [X] use serde for serialize/deserialize
 - [ ] figure out a way for task statuses to be changed. reflect this in clap_def and rough man
+- [ ] in the status config, have a way to order status so you can order tasks by status ie urg then todo then backlog etc
 - [X] figure out how to reflect that (some) add, (some) list, and (some) edit subcommands accept sentence args.
 - [ ] undo previous action (have a file that contains a description of the last action that can be rolled back)
 * future:
