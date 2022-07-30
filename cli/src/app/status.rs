@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
 //for different done and todo statues
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum StatType {
     Todo,
     Done,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Status {
     pub name: String,
     pub stat_type: StatType,

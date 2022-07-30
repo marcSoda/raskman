@@ -43,7 +43,7 @@ pub fn parse_task(task_list: Vec<&str>, num_tasks: u16) -> Result<Task, Specifie
         //match on the first char
         match first {
             '+' => { task.tags = parse_tag(&cmd[1..], task.tags)?; },
-            '%' => { task.status = parse_status(&cmd[1..])?; },
+            '%' => { task.status = parse_status(&cmd[1..], task.clone())?; },
             '@' => { task.groups = parse_group(&cmd[1..], task.groups)?; },
             _   => {
                 let split: Vec<&str> = cmd.split(':').collect();
@@ -52,7 +52,7 @@ pub fn parse_task(task_list: Vec<&str>, num_tasks: u16) -> Result<Task, Specifie
                 }
                 match split[0] {
                     "t" => { task.tags = parse_tag(split[1], task.tags)?; },
-                    "s" => { task.status = parse_status(split[1])?; },
+                    "s" => { task.status = parse_status(split[1], task.clone())?; },
                     "g" => { task.groups = parse_group(split[1], task.groups)?; },
                     _   => return Err(SpecifierError(cmd))
                 };
@@ -62,8 +62,6 @@ pub fn parse_task(task_list: Vec<&str>, num_tasks: u16) -> Result<Task, Specifie
 
     Ok(task)
 }
-
-//TODO: make sure you count things that should't happen twice like statues. or maybe just accept the last defined status?
 
 fn parse_tag(tag_name: &str, mut tags: Vec<Tag>) -> Result<Vec<Tag>, SpecifierError> {
     let tag = Tag::new(tag_name.to_string());
@@ -77,7 +75,10 @@ fn parse_group(group_name: &str, mut groups: Vec<Group>) -> Result<Vec<Group>, S
     Ok(groups)
 }
 
-fn parse_status(status_name: &str) -> Result<Status, SpecifierError> {
+fn parse_status(status_name: &str, task: Task) -> Result<Status, SpecifierError> {
+    if task.status != Status::default() {
+        return Err(SpecifierError("Can't have multiple status specifiers."));
+    }
     Ok(Status::new(status_name.to_string(), StatType::Todo))
     //TODO: THIS IS NOT RIGHT. should do more than just create a new status
     //should verify that given status exists then apply it

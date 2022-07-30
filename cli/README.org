@@ -10,14 +10,13 @@
 - [X] figure out how to reflect that (some) add, (some) list, and (some) edit subcommands accept sentence args.
 - [ ] undo previous action (have a file that contains a description of the last action that can be rolled back)
 * bugs:
-- [ ] clap errors on command with no args eg 'rask t' or 'rask s'. not sure why
-- [ ] data.json clears itself when app ungracefully exits
-- [ ] don't allow multiple statuses
-  - currently, you can add a task with multiple statuses. all appear in the description but only the last defined one appears in the status column
+- [X] clap errors on command with no args eg 'rask t' or 'rask s'. not sure why
+- [X] data.json clears itself when app ungracefully exits
+- [X] don't allow multiple statuses
 * future:
 - [ ] `rask info <id>` see all the metadata on a task, pretty
 - [ ] clap autocomplete
-- [ ] make specifiers have colors in list output eg all g:group is red and +tag is blue etc
+- [X] make specifiers have colors in list output eg all g:group is red and +tag is blue etc
   - maybe have these colors in the discription instead of having a column for tag and group?
 * features:
 - [ ] namespace definitions like taskwarrior

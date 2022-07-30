@@ -8,13 +8,13 @@ impl std::error::Error for SpecifierError<'_> { }
 
 impl fmt::Display for SpecifierError<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "SpecifierError: \"{}\" is an invalid specifier", self.0)
+        write!(f, "SpecifierError: \"{}\"", self.0)
     }
 }
 
 impl fmt::Debug for SpecifierError<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "SpecifierError: \"{}\" is invalid. file: {}, line: {}", self.0, file!(), line!())
+        write!(f, "SpecifierError: \"{}\". file: {}, line: {}", self.0, file!(), line!())
     }
 }
 

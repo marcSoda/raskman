@@ -35,12 +35,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             Rask::new()
         },
     };
-    file.set_len(0)?;
-    file.seek(SeekFrom::Start(0))?;
-
     let res = cli::dispatch_commands(&clap, rask);
     match res {
         Ok(rask) => {
+            file.set_len(0)?;
+            file.seek(SeekFrom::Start(0))?;
             serde_json::to_writer_pretty(&file, &rask)?
         },
         Err(e) => error!("{}", e),
