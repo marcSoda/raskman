@@ -1,0 +1,12 @@
+[global]
+address = "0.0.0.0"
+
+[development]
+address = "0.0.0.0"
+
+[default]
+name = "raimi"
+age = 20
+
+[default.databases.my_db]
+url = "mysql://root:2436@localhost/raskman"
