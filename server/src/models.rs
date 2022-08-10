@@ -10,3 +10,10 @@ pub struct User {
     pub login: String,
     pub hashword: String,
 }
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct UnhashedUser {
+    pub name: String,
+    pub login: String,
+    pub password: String,
+}

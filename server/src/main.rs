@@ -1,5 +1,8 @@
 #[macro_use]
 extern crate rocket;
+extern crate bcrypt;
+
+use bcrypt::{hash, verify};
 use diesel::prelude::*;
 use rocket::{
     serde::json::Json,
@@ -8,7 +11,7 @@ use rocket::{
 
 use rask_server::{
     ApiError,
-    models::User,
+    models::{ User, UnhashedUser },
     schema::users,
     Db,
 };
@@ -35,13 +38,30 @@ fn rocket() -> _ {
 //TODO: ensure login does not exist
 //TODO: respond with something meaningful on success (not usize)
 //TODO: replace .execute with .get_results after switching to postgres
-#[post("/register", data = "<user>")]
-async fn register_user(connection: Db, user: Json<User>
+#[post("/register", data = "<unhashed_user>")]
+async fn register_user(connection: Db, unhashed_user: Json<UnhashedUser>
 ) -> Result<Created<Json<usize>>, Json<ApiError>> {
+
+    let hashword = match hash(unhashed_user.password.clone(), 4) {
+        Ok(h) => h,
+        Err(e) => {
+            return Err(Json(ApiError {
+                details: e.to_string(),
+            }));
+        }
+    };
+
+    let user = User {
+        uid: None,
+        name: unhashed_user.name.clone(),
+        login: unhashed_user.login.clone(),
+        hashword,
+    };
+
     connection
         .run(move |c| {
             diesel::insert_into(users::table)
-                .values(&user.into_inner())
+                .values(&user)
                 .execute(c)
         })
         .await
