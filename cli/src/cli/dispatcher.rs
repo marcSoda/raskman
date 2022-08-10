@@ -11,8 +11,9 @@ use crate::{
 
 //async?
 //don't need to worry about catching incorrect args because clap does it for us
-pub fn dispatch_commands(matches: &ArgMatches, mut rask: Rask) -> Result<Rask, Box<dyn Error + '_>> {
-    let mut new_rask = rask.clone(); //to be returned.
+pub fn dispatch_commands<'a>(
+    matches: &'a ArgMatches, rask: &'a mut Rask
+) -> Result<(), Box<dyn Error + 'a>> {
     if let Some(cmd) = matches.subcommand_name() {
         let subcmd_matches = matches.subcommand_matches(cmd).unwrap();
         if cmd == "group" || cmd == "namespace" || cmd == "note" || cmd == "tag" {
@@ -44,8 +45,7 @@ pub fn dispatch_commands(matches: &ArgMatches, mut rask: Rask) -> Result<Rask, B
                     let task = parser::parse_task(task_text, rask.task_list.len() as u16 + 1);
                     match task {
                         Ok(t) => {
-                            new_rask.task_list.push(t);
-                            return Ok(new_rask);
+                            rask.task_list.push(t);
                         },
                         Err(e) => {
                             return Err(Box::new(e));
@@ -60,6 +60,7 @@ pub fn dispatch_commands(matches: &ArgMatches, mut rask: Rask) -> Result<Rask, B
                 } "done" => {
                     debug!("DONE");
                     let task_index = subcmd_matches.get_one::<u16>("task_index").unwrap();
+                    // new_rask.done(task_index)?;
                     debug!("task_index: {}", task_index);
                 } "edit" => {
                     debug!("EDIT");
@@ -81,7 +82,7 @@ pub fn dispatch_commands(matches: &ArgMatches, mut rask: Rask) -> Result<Rask, B
                     let task_index = subcmd_matches.get_one::<u16>("task_index").unwrap();
                     let new_status_string = subcmd_matches.get_one::<String>("new_status").unwrap();
                     let new_status = Status::new(new_status_string.to_string(), StatType::Todo);
-                    new_rask.update_status(*task_index, new_status)?;
+                    rask.update_status(*task_index, new_status)?;
                 } "sync" => {
                     debug!("SYNC");
                 } "undo" => {
@@ -92,7 +93,7 @@ pub fn dispatch_commands(matches: &ArgMatches, mut rask: Rask) -> Result<Rask, B
             };
         };
     }
-    Ok(new_rask)
+    Ok(())
 }
 
 fn dispatch_note <'a>(matches: &ArgMatches, cmd: &'a str) -> Result<(), UncoveredError<'a>> {

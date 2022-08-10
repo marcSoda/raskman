@@ -1,4 +1,7 @@
-use chrono::Utc;
+use chrono::{
+    DateTime,
+    Utc,
+};
 
 use crate::app::{
     task::Task,
@@ -8,7 +11,6 @@ use crate::app::{
     errors::SpecifierError,
 };
 
-// pub fn get_task(task_list: Vec<&str>) -> Result<Task, SpecifierErr> {
 pub fn parse_task(task_list: Vec<&str>, num_tasks: u16) -> Result<Task, SpecifierError> {
     let mut task = Task {
         uuid: uuid::Uuid::new_v4().simple().to_string(),
@@ -42,18 +44,20 @@ pub fn parse_task(task_list: Vec<&str>, num_tasks: u16) -> Result<Task, Specifie
 
         //match on the first char
         match first {
-            '+' => { task.tags = parse_tag(&cmd[1..], task.tags)?; },
-            '%' => { task.status = parse_status(&cmd[1..], task.clone())?; },
-            '@' => { task.groups = parse_group(&cmd[1..], task.groups)?; },
+            '+' => task.tags = parse_tag(&cmd[1..], task.tags)?,
+            '%' => task.status = parse_status(&cmd[1..], task.clone())?,
+            '@' => task.groups = parse_group(&cmd[1..], task.groups)?,
             _   => {
                 let split: Vec<&str> = cmd.split(':').collect();
                 if split.len() != 2 {
                     return Err(SpecifierError(cmd));
                 }
                 match split[0] {
-                    "t" => { task.tags = parse_tag(split[1], task.tags)?; },
-                    "s" => { task.status = parse_status(split[1], task.clone())?; },
-                    "g" => { task.groups = parse_group(split[1], task.groups)?; },
+                    "t" => task.tags = parse_tag(split[1], task.tags)?,
+                    "s" => task.status = parse_status(split[1], task.clone())?,
+                    "g" => task.groups = parse_group(split[1], task.groups)?,
+                    // "time" => task.due = Some(parse_time(split[1], task.due)?),
+                    // "date" => task.due = Some(parse_date(split[1], task.due)?),
                     _   => return Err(SpecifierError(cmd))
                 };
             }
@@ -62,6 +66,14 @@ pub fn parse_task(task_list: Vec<&str>, num_tasks: u16) -> Result<Task, Specifie
 
     Ok(task)
 }
+
+// fn parse_date(date_str: &str, mut due: Option<DateTime<Utc>>) -> Result<DateTime<Utc>, SpecifierError> {
+//     Ok(Utc::now())
+// }
+
+// fn parse_time(time_str: &str, mut due: Option<DateTime<Utc>>) -> Result<DateTime<Utc>, SpecifierError> {
+//     Ok(Utc::now())
+// }
 
 fn parse_tag(tag_name: &str, mut tags: Vec<Tag>) -> Result<Vec<Tag>, SpecifierError> {
     let tag = Tag::new(tag_name.to_string());

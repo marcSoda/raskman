@@ -9,13 +9,16 @@
 - [ ] in the status config, have a way to order status so you can order tasks by status ie urg then todo then backlog etc
 - [X] figure out how to reflect that (some) add, (some) list, and (some) edit subcommands accept sentence args.
 - [ ] undo previous action (have a file that contains a description of the last action that can be rolled back)
-* bugs:
+* known bugs:
 - [X] clap errors on command with no args eg 'rask t' or 'rask s'. not sure why
 - [X] data.json clears itself when app ungracefully exits
 - [X] don't allow multiple statuses
 * future:
 - [ ] `rask info <id>` see all the metadata on a task, pretty
 - [ ] clap autocomplete
+- [ ] modify tasks in a group (similiar to task warrior)
+  - e.g. task mod s:urgent +john mister | @school
+    - select all tasks that have an urgent status, john tag, and contain the string "mister" and add them to the schoo group
 - [X] make specifiers have colors in list output eg all g:group is red and +tag is blue etc
   - maybe have these colors in the discription instead of having a column for tag and group?
 * features:
@@ -30,7 +33,6 @@
 # - @ or n: for namespaces | EDIT: namespaces are now defined with tags and/or a due date or something like that
 - @ or g: for status
 - % or s: for group
-- use '\' for escaping these chars
 * ~/.config/rask/raskrc:
 - status config (multiple done/todo states)
 - namespace config

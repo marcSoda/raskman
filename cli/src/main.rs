@@ -27,7 +27,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .create(true)
         .open("data.json")?;
     //read file into rask struct
-    let rask: Rask = match serde_json::from_reader(&file) {
+    let mut rask: Rask = match serde_json::from_reader(&file) {
         Ok(r) => r,
         Err(e) => {
             //if data existed and from_reader errors: throw error
@@ -35,14 +35,13 @@ fn main() -> Result<(), Box<dyn Error>> {
             Rask::new()
         },
     };
-    let res = cli::dispatch_commands(&clap, rask);
-    match res {
-        Ok(rask) => {
+    match cli::dispatch_commands(&clap, &mut rask) {
+        Ok(_) => {
             file.set_len(0)?;
             file.seek(SeekFrom::Start(0))?;
-            serde_json::to_writer_pretty(&file, &rask)?
         },
         Err(e) => error!("{}", e),
     };
+    serde_json::to_writer_pretty(&file, &rask)?;
     Ok(())
 }
