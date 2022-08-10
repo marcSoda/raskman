@@ -3,6 +3,7 @@
 
 mod cli;
 mod app;
+mod net;
 
 use cli::banner::BANNER;
 use app::Rask;
@@ -14,6 +15,10 @@ use std::io::{
     SeekFrom,
     prelude::Seek
 };
+
+//todo: you're gonna have to do this with multithreading
+//create a network thread, pass it to dispather, on register, tell the thread to authenticate
+//use channels: https://stackoverflow.com/questions/26199926/how-to-terminate-or-suspend-a-rust-thread-from-another-thread
 
 fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
@@ -36,12 +41,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         },
     };
     match cli::dispatch_commands(&clap, &mut rask) {
-        Ok(_) => {
-            file.set_len(0)?;
-            file.seek(SeekFrom::Start(0))?;
-        },
+        Ok(_) => (),
         Err(e) => error!("{}", e),
     };
+    file.set_len(0)?;
+    file.seek(SeekFrom::Start(0))?;
     serde_json::to_writer_pretty(&file, &rask)?;
     Ok(())
 }

@@ -2,6 +2,7 @@ use clap::ArgMatches;
 use std::error::Error;
 use crate::{
     Rask,
+    net,
     app::{
         parser,
         errors::UncoveredError,
@@ -51,10 +52,19 @@ pub fn dispatch_commands<'a>(
                             return Err(Box::new(e));
                         }
                     }
-                } "auth" => {
-                    debug!("AUTH");
+                } "login" => {
+                    debug!("LOGIN");
                     let login = subcmd_matches.get_one::<String>("login").unwrap();
                     let password = subcmd_matches.get_one::<String>("password").unwrap();
+                    debug!("login: {:?}", login);
+                    debug!("password: {:?}", password);
+                } "register" => {
+                    debug!("REGISTER");
+                    let name = subcmd_matches.get_one::<String>("name").unwrap();
+                    let login = subcmd_matches.get_one::<String>("login").unwrap();
+                    let password = subcmd_matches.get_one::<String>("password").unwrap();
+                    net::register(name.to_string(), login.to_string(), password.to_string())?;
+                    debug!("name: {:?}", name);
                     debug!("login: {:?}", login);
                     debug!("password: {:?}", password);
                 } "done" => {

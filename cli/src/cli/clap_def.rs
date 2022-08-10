@@ -18,7 +18,8 @@ pub fn get_clap() -> ArgMatches {
     .subcommand(remove())
     .subcommand(edit())
     .subcommand(list())
-    .subcommand(auth())
+    .subcommand(login())
+    .subcommand(register())
     .subcommand(sync())
     .subcommand(undo())
     .subcommand(tag())
@@ -109,9 +110,26 @@ fn list() -> Command<'static> {
             .help("Query text"))
 }
 
-fn auth() -> Command<'static> {
-    Command::new("auth")
+fn login() -> Command<'static> {
+    Command::new("login")
         .about("Authenticate with the server")
+        .arg(Arg::new("login")
+            .required(true)
+            .takes_value(true)
+            .help("login"))
+        .arg(Arg::new("password")
+            .required(true)
+            .takes_value(true)
+            .help("password"))
+}
+
+fn register() -> Command<'static> {
+    Command::new("register")
+        .about("Register with the server")
+        .arg(Arg::new("name")
+            .required(true)
+            .takes_value(true)
+            .help("name"))
         .arg(Arg::new("login")
             .required(true)
             .takes_value(true)
