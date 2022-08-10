@@ -9,10 +9,10 @@ use reqwest::blocking::Client;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct User {
-    uid: Option<String>,
+    uid: Option<i64>,
     name: String,
     login: String,
-    hashword: String,
+    password: String,
 }
 
 pub fn register(name: String, login: String, password: String) -> Result<(), Box<dyn Error>> {
@@ -20,7 +20,7 @@ pub fn register(name: String, login: String, password: String) -> Result<(), Box
         uid: None,
         name,
         login,
-        hashword: password,
+        password,
     };
 
     let request_url = "http://147.182.135.192:8000/users/register";
