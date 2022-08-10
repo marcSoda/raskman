@@ -7,7 +7,7 @@ use rocket::serde::{Deserialize, Serialize};
 use rocket_sync_db_pools::database;
 
 #[database("my_db")]
-pub struct Db(diesel::MysqlConnection);
+pub struct Db(diesel::PgConnection);
 
 
 #[derive(Serialize, Deserialize, Debug)]

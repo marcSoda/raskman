@@ -33,11 +33,9 @@ fn rocket() -> _ {
         )
 }
 
-//TODO: diesel mysql does not support insert_into.get_results but postgres does. .execute will never error so we have redundant code. switch to postgresql database
-
 //TODO: ensure login does not exist
 //TODO: respond with something meaningful on success (not usize)
-//TODO: replace .execute with .get_results after switching to postgres
+//NOTE: using .get_results instead of .execute returns a user instead of 0 or 1
 #[post("/register", data = "<unhashed_user>")]
 async fn register_user(connection: Db, unhashed_user: Json<UnhashedUser>
 ) -> Result<Created<Json<usize>>, Json<ApiError>> {
@@ -74,7 +72,7 @@ async fn register_user(connection: Db, unhashed_user: Json<UnhashedUser>
 }
 
 #[get("/<uid>")]
-async fn retrieve_user(connection: Db, uid: i64
+async fn retrieve_user(connection: Db, uid: i32
 ) -> Result<Json<User>, NotFound<Json<ApiError>>> {
     connection
         .run(move |c| users::table.filter(users::uid.eq(uid)).first(c))
@@ -103,11 +101,10 @@ async fn list_users(connection: Db
 
 //TODO: ensure login does not exist
 //TODO: respond with something meaningful on success (not usize)
-//TODO: replace .execute with .get_results after switching to postgres
 #[patch("/update/<uid>", data = "<user>")]
 async fn update_user(
     connection: Db,
-    uid: i64,
+    uid: i32,
     user: Json<User>,
 ) -> Result<Json<usize>, NotFound<Json<ApiError>>> {
     connection
@@ -126,7 +123,7 @@ async fn update_user(
 }
 
 #[delete("/delete/<uid>")]
-async fn delete_user(connection: Db, uid: i64) -> Result<NoContent, NotFound<Json<ApiError>>> {
+async fn delete_user(connection: Db, uid: i32) -> Result<NoContent, NotFound<Json<ApiError>>> {
     connection
         .run(move |c| {
             let affected = diesel::delete(users::table.filter(users::uid.eq(uid)))
