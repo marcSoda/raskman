@@ -17,3 +17,9 @@ pub struct UnhashedUser {
     pub login: String,
     pub password: String,
 }
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct Credentials {
+    pub login: String,
+    pub password: String,
+}

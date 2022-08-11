@@ -14,7 +14,8 @@ pub fn rocket() -> Rocket<Build> {
                 users::list,
                 users::retrieve,
                 users::update,
-                users::delete
+                users::delete,
+                users::login,
             ],
         )
 }

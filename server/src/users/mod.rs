@@ -1,5 +1,4 @@
-pub mod model;
-// pub mod auth;
+pub mod models;
 
 use bcrypt::{hash, verify};
 use diesel::prelude::*;
@@ -8,8 +7,10 @@ use rocket::{
     serde::json::Json,
     response::status::{Created, NoContent, NotFound},
 };
-use crate::{ Db, ApiError, users::model::UnhashedUser, schema::users };
-use self::model::User;
+use crate::{ Db, ApiError, schema::users };
+use self::models::{
+    User, UnhashedUser, Credentials
+};
 
 //TODO: ensure login does not exist
 //TODO: respond with something meaningful on success (not usize)
@@ -49,18 +50,42 @@ pub async fn register(connection: Db, unhashed_user: Json<UnhashedUser>
         })
 }
 
+#[get("/login", data = "<credentials>")]
+pub async fn login(connection: Db, credentials: Json<Credentials>
+) -> Result<Json<usize>, Json<ApiError>> {
+    let user = match get_user_by_login(connection, credentials.login.clone()).await {
+        Ok(u) => u,
+        Err(_) => {
+            return Err(Json(ApiError {
+                details: "Error: login not found".to_string(),
+            }));
+        }
+    };
+
+    match verify(credentials.password.clone(), &user.hashword.clone()) {
+        Ok(res) => {
+            match res {
+                true => true,
+                false => {
+                    return Err(Json(ApiError {
+                        details: "Error: wrong password".to_string(),
+                    }));
+                }
+            }
+        }, Err(_) => {
+            return Err(Json(ApiError {
+                details: "Error: internal server error".to_string(),
+            }));
+        }
+    };
+
+    Ok(Json(1))
+}
+
 #[get("/<uid>")]
 pub async fn retrieve(connection: Db, uid: i32
 ) -> Result<Json<User>, NotFound<Json<ApiError>>> {
-    connection
-        .run(move |c| users::table.filter(users::uid.eq(uid)).first(c))
-        .await
-        .map(Json)
-        .map_err(|e| {
-            NotFound(Json(ApiError {
-                details: e.to_string(),
-            }))
-        })
+    get_user_by_uid(connection, uid).await
 }
 
 #[get("/list")]
@@ -115,6 +140,32 @@ pub async fn delete(connection: Db, uid: i32) -> Result<NoContent, NotFound<Json
         })
         .await
         .map(|_| NoContent)
+        .map_err(|e| {
+            NotFound(Json(ApiError {
+                details: e.to_string(),
+            }))
+        })
+}
+
+pub async fn get_user_by_login(connection: Db, login: String
+) -> Result<Json<User>, NotFound<Json<ApiError>>> {
+    connection
+        .run(move |c| users::table.filter(users::login.eq(login)).first(c))
+        .await
+        .map(Json)
+        .map_err(|e| {
+            NotFound(Json(ApiError {
+                details: e.to_string(),
+            }))
+        })
+}
+
+pub async fn get_user_by_uid(connection:Db, uid: i32
+) -> Result<Json<User>, NotFound<Json<ApiError>>> {
+    connection
+        .run(move |c| users::table.filter(users::uid.eq(uid)).first(c))
+        .await
+        .map(Json)
         .map_err(|e| {
             NotFound(Json(ApiError {
                 details: e.to_string(),
