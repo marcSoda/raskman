@@ -69,3 +69,20 @@ impl fmt::Debug for RegisterError<'_> {
         write!(f, "RegisterError: \"{}\". file: {}, line: {}", self.0, file!(), line!())
     }
 }
+
+
+pub struct LoginError<'a>(pub &'a str);
+
+impl std::error::Error for LoginError<'_> { }
+
+impl fmt::Display for LoginError<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "RegisterError: \"{}\"", self.0)
+    }
+}
+
+impl fmt::Debug for LoginError<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "RegisterError: \"{}\". file: {}, line: {}", self.0, file!(), line!())
+    }
+}

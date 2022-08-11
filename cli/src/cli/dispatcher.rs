@@ -56,6 +56,8 @@ pub fn dispatch_commands<'a>(
                     debug!("LOGIN");
                     let login = subcmd_matches.get_one::<String>("login").unwrap();
                     let password = subcmd_matches.get_one::<String>("password").unwrap();
+                    net::login(login.to_string(), password.to_string())?;
+                    println!("Successful Login");
                     debug!("login: {:?}", login);
                     debug!("password: {:?}", password);
                 } "register" => {
@@ -64,13 +66,13 @@ pub fn dispatch_commands<'a>(
                     let login = subcmd_matches.get_one::<String>("login").unwrap();
                     let password = subcmd_matches.get_one::<String>("password").unwrap();
                     net::register(name.to_string(), login.to_string(), password.to_string())?;
+                    println!("Successful Registration");
                     debug!("name: {:?}", name);
                     debug!("login: {:?}", login);
                     debug!("password: {:?}", password);
                 } "done" => {
                     debug!("DONE");
                     let task_index = subcmd_matches.get_one::<u16>("task_index").unwrap();
-                    // new_rask.done(task_index)?;
                     debug!("task_index: {}", task_index);
                 } "edit" => {
                     debug!("EDIT");
