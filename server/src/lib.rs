@@ -1,8 +1,9 @@
-pub mod models;
 pub mod schema;
+pub mod users;
 
 #[macro_use]
 extern crate diesel;
+
 use rocket::serde::{Deserialize, Serialize};
 use rocket_sync_db_pools::database;
 
