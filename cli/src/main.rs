@@ -16,10 +16,6 @@ use std::io::{
     prelude::Seek
 };
 
-//todo: you're gonna have to do this with multithreading
-//create a network thread, pass it to dispather, on register, tell the thread to authenticate
-//use channels: https://stackoverflow.com/questions/26199926/how-to-terminate-or-suspend-a-rust-thread-from-another-thread
-
 fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
     let clap = cli::get_clap();
@@ -35,17 +31,24 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut rask: Rask = match serde_json::from_reader(&file) {
         Ok(r) => r,
         Err(e) => {
+            //if the file is empty, delete it
+            if file.metadata()?.len() == 0 {
+                std::fs::remove_file(Path::new("data.json"))?;
+            }
             //if data existed and from_reader errors: throw error
             if data_existed { return Err(Box::new(e)); }
             Rask::new()
         },
     };
+    rask.needs_saving = false;
     match cli::dispatch_commands(&clap, &mut rask) {
         Ok(_) => (),
         Err(e) => error!("{}", e),
     };
-    file.set_len(0)?;
-    file.seek(SeekFrom::Start(0))?;
-    serde_json::to_writer_pretty(&file, &rask)?;
+    if rask.needs_saving {
+        file.set_len(0)?;
+        file.seek(SeekFrom::Start(0))?;
+        serde_json::to_writer_pretty(&file, &rask)?;
+    }
     Ok(())
 }
