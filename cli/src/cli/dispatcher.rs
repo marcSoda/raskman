@@ -45,12 +45,8 @@ pub fn dispatch_commands<'a>(
                     debug!("task_text: {:?}", task_text);
                     let task = parser::parse_task(task_text, rask.task_list.len() as u16 + 1);
                     match task {
-                        Ok(t) => {
-                            rask.task_list.push(t);
-                        },
-                        Err(e) => {
-                            return Err(Box::new(e));
-                        }
+                        Ok(t) => rask.task_list.push(t),
+                        Err(e) => return Err(Box::new(e)),
                     }
                 } "login" => {
                     debug!("LOGIN");
