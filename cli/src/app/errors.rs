@@ -1,5 +1,21 @@
 use std::fmt;
 
+pub struct GenericError<'a>(pub &'a str);
+
+impl std::error::Error for GenericError<'_> { }
+
+impl fmt::Display for GenericError<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "GenericError: \"{}\"", self.0)
+    }
+}
+
+impl fmt::Debug for GenericError<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "GenericError: \"{}\". file: {}, line: {}", self.0, file!(), line!())
+    }
+}
+
 //A specifier error is thrown when the user inputs an invalid specifier
 //A specifier is a word that is passed during task creation that contains a ':' or one of the defined special symbols such as %. Ex: due:tue or %personal
 pub struct SpecifierError<'a>(pub &'a str);

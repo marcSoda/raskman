@@ -25,6 +25,7 @@ pub struct Rask {
     // pass: String,
     pub task_list: Vec<Task>,
     pub current_namespace: Namespace,
+    pub needs_saving: bool, //used to indicate that the task_list needs to be saved to disk
 }
 
 //todo: for list filtering, add a filter function that filters all of the tasks based on a
@@ -36,6 +37,7 @@ impl Rask {
         Rask {
             task_list: vec![],
             current_namespace: Namespace::default(),
+            needs_saving: false,
         }
     }
 

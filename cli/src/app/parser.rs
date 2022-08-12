@@ -1,12 +1,15 @@
 use chrono::Utc;
 
 use crate::app::{
+    Rask,
     task::Task,
     group::Group,
     tag::Tag,
-    status::{Status, StatType},
+    status::{ Status, StatType },
     errors::SpecifierError,
 };
+
+use std::error::Error;
 
 pub fn parse_task(task_list: Vec<&str>, num_tasks: u16) -> Result<Task, SpecifierError> {
     let mut task = Task {
@@ -62,6 +65,65 @@ pub fn parse_task(task_list: Vec<&str>, num_tasks: u16) -> Result<Task, Specifie
     }
 
     Ok(task)
+}
+
+pub fn parse_query<'a>(rask: &mut Rask, query: Vec<&'a str>) -> Result<(), Box<dyn Error + 'a>> {
+    let pq: Vec<&str> = query
+        .into_iter()
+        .filter(|w| w.contains(':')
+                 || w.contains('+')
+                 || w.contains('@')
+                 || w.contains('%'))
+        .collect();
+
+    for spec in pq {
+        //get first char to match on
+        let first: char = match spec.chars().next() {
+            Some(ch) => ch,
+            None => return Err(Box::new(SpecifierError(spec))),
+        };
+
+        //match on the first char
+        match first {
+            '+' => filter_tags(rask, spec[1..].to_string()),
+            '%' => filter_stat(rask, spec[1..].to_string()),
+            '@' => filter_groups(rask, spec[1..].to_string()),
+            _   => {
+                let split: Vec<&str> = spec.split(':').collect();
+                if split.len() != 2 {
+                    return Err(Box::new(SpecifierError(spec)));
+                }
+                match split[0] {
+                    "t" => filter_tags(rask, split[1].to_string()),
+                    "g" => filter_groups(rask, split[1].to_string()),
+                    "s" => filter_stat(rask, split[1].to_string()),
+                    _   => return Err(Box::new(SpecifierError(spec)))
+                };
+            }
+        };
+    }
+    Ok(())
+}
+
+fn filter_tags(rask: &mut Rask, tok: String) {
+    rask.task_list = rask.task_list.clone()
+        .into_iter()
+        .filter(|t| t.tags_contains(tok.clone()))
+        .collect::<Vec<Task>>();
+}
+
+fn filter_groups(rask: &mut Rask, tok: String) {
+    rask.task_list = rask.task_list.clone()
+        .into_iter()
+        .filter(|t| t.groups_contains(tok.clone()))
+        .collect::<Vec<Task>>();
+}
+
+fn filter_stat(rask: &mut Rask, tok: String) {
+    rask.task_list = rask.task_list.clone()
+        .into_iter()
+        .filter(|t| t.stat_is(tok.clone()))
+        .collect::<Vec<Task>>();
 }
 
 // fn parse_date(date_str: &str, mut due: Option<DateTime<Utc>>) -> Result<DateTime<Utc>, SpecifierError> {

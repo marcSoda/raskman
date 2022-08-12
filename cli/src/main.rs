@@ -16,10 +16,6 @@ use std::io::{
     prelude::Seek
 };
 
-//todo: you're gonna have to do this with multithreading
-//create a network thread, pass it to dispather, on register, tell the thread to authenticate
-//use channels: https://stackoverflow.com/questions/26199926/how-to-terminate-or-suspend-a-rust-thread-from-another-thread
-
 fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
     let clap = cli::get_clap();
@@ -36,16 +32,20 @@ fn main() -> Result<(), Box<dyn Error>> {
         Ok(r) => r,
         Err(e) => {
             //if data existed and from_reader errors: throw error
+            //todo: known bug: if there are no tasks, OpenOptions will create an empty file which will not be written to. any future calls to the app with an empty data file will cause an error
             if data_existed { return Err(Box::new(e)); }
             Rask::new()
         },
     };
+    rask.needs_saving = false;
     match cli::dispatch_commands(&clap, &mut rask) {
         Ok(_) => (),
         Err(e) => error!("{}", e),
     };
-    file.set_len(0)?;
-    file.seek(SeekFrom::Start(0))?;
-    serde_json::to_writer_pretty(&file, &rask)?;
+    if rask.needs_saving {
+        file.set_len(0)?;
+        file.seek(SeekFrom::Start(0))?;
+        serde_json::to_writer_pretty(&file, &rask)?;
+    }
     Ok(())
 }

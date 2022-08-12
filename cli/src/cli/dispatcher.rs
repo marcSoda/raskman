@@ -40,6 +40,7 @@ pub fn dispatch_commands<'a>(
             match cmd {
                 "add" => {
                     debug!("ADD");
+                    rask.needs_saving = true;
                     let task_text = collect_arg_list(subcmd_matches, "task_text");
                     debug!("task_text: {:?}", task_text);
                     let task = parser::parse_task(task_text, rask.task_list.len() as u16 + 1);
@@ -78,7 +79,7 @@ pub fn dispatch_commands<'a>(
                     debug!("LIST");
                     let query_list = collect_arg_list(subcmd_matches, "query");
                     debug!("query_list: {:?}", query_list);
-                    // let query = parser::parse_query(query_list);
+                    parser::parse_query(rask, query_list)?;
                     rask.disp();
                 } "remove" => {
                     debug!("REMOVE");
@@ -86,6 +87,7 @@ pub fn dispatch_commands<'a>(
                     debug!("task_index: {}", task_index);
                 } "status" => {
                     debug!("STATUS");
+                    rask.needs_saving = true;
                     let task_index = subcmd_matches.get_one::<u16>("task_index").unwrap();
                     let new_status_string = subcmd_matches.get_one::<String>("new_status").unwrap();
                     let new_status = Status::new(new_status_string.to_string(), StatType::Todo);
@@ -97,6 +99,7 @@ pub fn dispatch_commands<'a>(
                     net::push(&rask.task_list)?;
                 } "pull" => {
                     debug!("PULL");
+                    rask.needs_saving = true;
                     let new_task_list = net::pull()?;
                     rask.task_list = new_task_list;
                 } "undo" => {
