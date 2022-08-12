@@ -8,7 +8,7 @@ use rocket::{
     response::status::{Created, NoContent, NotFound},
 };
 use crate::{ Db, ApiError, schema::users };
-use self::models::{
+pub use self::models::{
     User, UnhashedUser, Credentials
 };
 
@@ -53,7 +53,7 @@ pub async fn register(connection: Db, unhashed_user: Json<UnhashedUser>
 #[get("/login", data = "<credentials>")]
 pub async fn login(connection: Db, credentials: Json<Credentials>
 ) -> Result<Json<usize>, Json<ApiError>> {
-    let user = match get_user_by_login(connection, credentials.login.clone()).await {
+    let user = match get_user_by_login(&connection, credentials.login.clone()).await {
         Ok(u) => u,
         Err(_) => {
             return Err(Json(ApiError {
@@ -147,7 +147,7 @@ pub async fn delete(connection: Db, uid: i32) -> Result<NoContent, NotFound<Json
         })
 }
 
-pub async fn get_user_by_login(connection: Db, login: String
+pub async fn get_user_by_login(connection: &Db, login: String
 ) -> Result<Json<User>, NotFound<Json<ApiError>>> {
     connection
         .run(move |c| users::table.filter(users::login.eq(login)).first(c))

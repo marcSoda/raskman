@@ -1,5 +1,6 @@
 pub mod schema;
 pub mod users;
+pub mod task_lists;
 
 #[macro_use]
 extern crate diesel;
