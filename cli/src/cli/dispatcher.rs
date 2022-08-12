@@ -6,11 +6,10 @@ use crate::{
     app::{
         parser,
         errors::UncoveredError,
-        status::{Status, StatType}
+        status::{ Status, StatType }
     },
 };
 
-//async?
 //don't need to worry about catching incorrect args because clap does it for us
 pub fn dispatch_commands<'a>(
     matches: &'a ArgMatches, rask: &'a mut Rask
@@ -93,6 +92,13 @@ pub fn dispatch_commands<'a>(
                     rask.update_status(*task_index, new_status)?;
                 } "sync" => {
                     debug!("SYNC");
+                } "push" => {
+                    debug!("PUSH");
+                    net::push(&rask.task_list)?;
+                } "pull" => {
+                    debug!("PULL");
+                    let new_task_list = net::pull()?;
+                    rask.task_list = new_task_list;
                 } "undo" => {
                     debug!("UNDO");
                 } _ => {

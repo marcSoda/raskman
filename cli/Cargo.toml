@@ -1,6 +1,6 @@
 [package]
 name        = "rask"
-authors     = ["Marc Soda Jr   <m@soda.fm> \nChenla Long Jr <longchenlajr@gmail.com"]
+authors     = ["Marc Soda Jr   <m@soda.fm> \nChenla Long Jr <longchenlajr@outlook.com"]
 description = "Fast, Extensible CLI Task Manager"
 version     = "0.1.0"
 edition     = "2021"

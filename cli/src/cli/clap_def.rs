@@ -21,6 +21,8 @@ pub fn get_clap() -> ArgMatches {
     .subcommand(login())
     .subcommand(register())
     .subcommand(sync())
+    .subcommand(push())
+    .subcommand(pull())
     .subcommand(undo())
     .subcommand(tag())
     .get_matches()
@@ -143,6 +145,16 @@ fn register() -> Command<'static> {
 fn sync() -> Command<'static> {
     Command::new("sync")
         .about("Synchronize with the server")
+}
+
+fn push() -> Command<'static> {
+    Command::new("push")
+        .about("Push task list to server")
+}
+
+fn pull() -> Command<'static> {
+    Command::new("pull")
+        .about("Pull task list from server")
 }
 
 fn undo() -> Command<'static> {
