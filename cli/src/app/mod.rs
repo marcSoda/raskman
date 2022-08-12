@@ -63,6 +63,10 @@ impl Rask {
 
     //todo: maybe ret result??
     pub fn disp(&mut self) {
+        if self.task_list.is_empty() {
+            println!("No tasks to list");
+            return;
+        }
         // Create the table
         let mut table = Table::new();
         let format = format::FormatBuilder::new()

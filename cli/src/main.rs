@@ -31,8 +31,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut rask: Rask = match serde_json::from_reader(&file) {
         Ok(r) => r,
         Err(e) => {
+            //if the file is empty, delete it
+            if file.metadata()?.len() == 0 {
+                std::fs::remove_file(Path::new("data.json"))?;
+            }
             //if data existed and from_reader errors: throw error
-            //todo: known bug: if there are no tasks, OpenOptions will create an empty file which will not be written to. any future calls to the app with an empty data file will cause an error
             if data_existed { return Err(Box::new(e)); }
             Rask::new()
         },

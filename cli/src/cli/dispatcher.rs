@@ -97,11 +97,13 @@ pub fn dispatch_commands<'a>(
                 } "push" => {
                     debug!("PUSH");
                     net::push(&rask.task_list)?;
+                    println!("Successful Push");
                 } "pull" => {
                     debug!("PULL");
                     rask.needs_saving = true;
                     let new_task_list = net::pull()?;
                     rask.task_list = new_task_list;
+                    println!("Successful Pull");
                 } "undo" => {
                     debug!("UNDO");
                 } _ => {
