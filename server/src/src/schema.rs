@@ -1,14 +1,14 @@
 table! {
     task_lists (tid) {
-        tid -> Nullable<Int4>,
+        tid -> Int4,
         uid -> Int4,
-        task_list -> Nullable<Jsonb>,
+        task_list -> Bytea,
     }
 }
 
 table! {
     users (uid) {
-        uid -> Nullable<Int4>,
+        uid -> Int4,
         name -> Varchar,
         login -> Varchar,
         hashword -> Varchar,
