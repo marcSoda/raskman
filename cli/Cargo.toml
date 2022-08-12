@@ -1,6 +1,6 @@
 [package]
 name        = "rask"
-authors     = ["Marc Soda Jr   <m@soda.fm> \nChenla Long Jr <longchenlajr@gmail.com"]
+authors     = ["Marc Soda Jr   <m@soda.fm> \nChenla Long Jr <longchenlajr@outlook.com"]
 description = "Fast, Extensible CLI Task Manager"
 version     = "0.1.0"
 edition     = "2021"
@@ -15,3 +15,4 @@ serde_json     = "*"
 serde_derive   = "*"
 chrono         = { version = "0.4.19", features = ["serde"] }
 prettytable-rs = "0.8.0"
+reqwest        = { version = "0.11.11", features = ["json", "blocking"] }

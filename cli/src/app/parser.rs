@@ -1,7 +1,4 @@
-use chrono::{
-    DateTime,
-    Utc,
-};
+use chrono::Utc;
 
 use crate::app::{
     task::Task,

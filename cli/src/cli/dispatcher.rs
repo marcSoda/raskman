@@ -2,14 +2,14 @@ use clap::ArgMatches;
 use std::error::Error;
 use crate::{
     Rask,
+    net,
     app::{
         parser,
         errors::UncoveredError,
-        status::{Status, StatType}
+        status::{ Status, StatType }
     },
 };
 
-//async?
 //don't need to worry about catching incorrect args because clap does it for us
 pub fn dispatch_commands<'a>(
     matches: &'a ArgMatches, rask: &'a mut Rask
@@ -44,23 +44,30 @@ pub fn dispatch_commands<'a>(
                     debug!("task_text: {:?}", task_text);
                     let task = parser::parse_task(task_text, rask.task_list.len() as u16 + 1);
                     match task {
-                        Ok(t) => {
-                            rask.task_list.push(t);
-                        },
-                        Err(e) => {
-                            return Err(Box::new(e));
-                        }
+                        Ok(t) => rask.task_list.push(t),
+                        Err(e) => return Err(Box::new(e)),
                     }
-                } "auth" => {
-                    debug!("AUTH");
+                } "login" => {
+                    debug!("LOGIN");
                     let login = subcmd_matches.get_one::<String>("login").unwrap();
                     let password = subcmd_matches.get_one::<String>("password").unwrap();
+                    net::login(login.to_string(), password.to_string())?;
+                    println!("Successful Login");
+                    debug!("login: {:?}", login);
+                    debug!("password: {:?}", password);
+                } "register" => {
+                    debug!("REGISTER");
+                    let name = subcmd_matches.get_one::<String>("name").unwrap();
+                    let login = subcmd_matches.get_one::<String>("login").unwrap();
+                    let password = subcmd_matches.get_one::<String>("password").unwrap();
+                    net::register(name.to_string(), login.to_string(), password.to_string())?;
+                    println!("Successful Registration");
+                    debug!("name: {:?}", name);
                     debug!("login: {:?}", login);
                     debug!("password: {:?}", password);
                 } "done" => {
                     debug!("DONE");
                     let task_index = subcmd_matches.get_one::<u16>("task_index").unwrap();
-                    // new_rask.done(task_index)?;
                     debug!("task_index: {}", task_index);
                 } "edit" => {
                     debug!("EDIT");
@@ -85,6 +92,13 @@ pub fn dispatch_commands<'a>(
                     rask.update_status(*task_index, new_status)?;
                 } "sync" => {
                     debug!("SYNC");
+                } "push" => {
+                    debug!("PUSH");
+                    net::push(&rask.task_list)?;
+                } "pull" => {
+                    debug!("PULL");
+                    let new_task_list = net::pull()?;
+                    rask.task_list = new_task_list;
                 } "undo" => {
                     debug!("UNDO");
                 } _ => {

@@ -51,3 +51,38 @@ impl fmt::Debug for UncoveredError <'_> {
         write!(f, "UnvoceredError: \"{}\" is uncovered. file: {}, line: {}", self.0, file!(), line!())
     }
 }
+
+
+//TODO: test register error
+pub struct RegisterError<'a>(pub &'a str);
+
+impl std::error::Error for RegisterError<'_> { }
+
+impl fmt::Display for RegisterError<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "RegisterError: \"{}\"", self.0)
+    }
+}
+
+impl fmt::Debug for RegisterError<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "RegisterError: \"{}\". file: {}, line: {}", self.0, file!(), line!())
+    }
+}
+
+
+pub struct LoginError<'a>(pub &'a str);
+
+impl std::error::Error for LoginError<'_> { }
+
+impl fmt::Display for LoginError<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "RegisterError: \"{}\"", self.0)
+    }
+}
+
+impl fmt::Debug for LoginError<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "RegisterError: \"{}\". file: {}, line: {}", self.0, file!(), line!())
+    }
+}

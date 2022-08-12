@@ -26,10 +26,3 @@ pub struct Task {
     pub recur: Option<Vec<String>>,
     pub until: Option<DateTime<Utc>>,
 }
-
-//dispatcher directly calls parse_task, so this isn't needed. maybe change that?
-// impl Task {
-//     pub fn new(text_list: Vec<&str>) -> Self {
-//         parser::parse_task(text_list).unwrap() //todo: don't just unwrap
-//     }
-// }
