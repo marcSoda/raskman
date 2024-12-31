@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
+use colored::*;
 use prettytable::{
     Table,
-    format,
+    format::*,
 };
 
 pub mod task;
@@ -69,14 +70,19 @@ impl Rask {
         }
         // Create the table
         let mut table = Table::new();
-        let format = format::FormatBuilder::new()
-            .column_separator('|')
-            .right_border('|')
-            .padding(2, 2)
-            .build();
+        let format = FormatBuilder::new()
+                             .column_separator('│')
+                             .borders('│')
+                             .separators(&[LinePosition::Top], LineSeparator::new('─', '┬', '┌', '┐'))
+                             .separators(&[LinePosition::Title], LineSeparator::new('─', '┼', '├', '┤'))
+                             .separators(&[LinePosition::Bottom], LineSeparator::new('─', '┴', '└', '┘'))
+                             .padding(1, 1)
+                             .build();
         table.set_format(format);
 
-        table.set_titles(row![cbFy->"ID", cb->"Description", cbFr->"Status", cbFb->"Group", cbFg->"Tags"]);
+        // table.set_titles(row![cbFy->"ID", cb->"Description", cbFr->"Status", cbFb->"Group", cbFg->"Tags"]);
+        table.set_titles(row!["ID".yellow(), "Description", "Status".red(), "Group".blue(), "Tags".green()]);
+
 
         for task in self.task_list.iter_mut() {
             let mut groups: String = "".to_string();
@@ -96,7 +102,7 @@ impl Rask {
 
             table.add_row(row![Fy->task.index, colorize(task.description.clone()), stat_name, groups, tags]);
         }
-        println!("\n\x1b[35mNamespace: {}\x1b[0m", self.current_namespace.name);
+        println!("\nNamespace: {}", self.current_namespace.name.blue());
         table.printstd();
         println!();
     }
@@ -104,30 +110,34 @@ impl Rask {
 
 //color string documentation: https://docs.rs/embedded-text/0.4.0/embedded_text/style/index.html
 fn colorize(s: String) -> String {
-    let mut tokens: Vec<String> = s.trim().split(' ').map(String::from).collect();
-    for tok in tokens.iter_mut() {
-        let first: char = match tok.chars().next() {
-            Some(ch) => ch,
-            None => continue,
-        };
+    s.trim()
+        .split_whitespace()
+        .map(|tok| {
+            let first = tok.chars().next().unwrap_or(' ');
 
-        //match on the first char
-        match first {
-            '+' => { *tok = "\x1b[32m".to_string() + &*tok + &"\x1b[0m".to_string(); },
-            '%' => { *tok = "\x1b[31m".to_string() + &*tok + &"\x1b[0m".to_string(); },
-            '@' => { *tok = "\x1b[94m".to_string() + &*tok + &"\x1b[0m".to_string(); },
-            _   => {
-                if !tok.contains(':') { continue; }
-                let split: Vec<&str> = tok.split(':').collect();
-                if split.len() != 2 { continue }
-                match split[0] {
-                    "t" => { *tok = "\x1b[32m".to_string() + &*tok + &"\x1b[0m".to_string(); },
-                    "s" => { *tok = "\x1b[31m".to_string() + &*tok + &"\x1b[0m".to_string(); },
-                    "g" => { *tok = "\x1b[94m".to_string() + &*tok + &"\x1b[0m".to_string(); },
-                    _   => continue,
-                };
+            match first {
+                '+' => tok.green().to_string(),
+                '%' => tok.red().to_string(),
+                '@' => tok.blue().to_string(),
+                _ => {
+                    if tok.contains(':') {
+                        let split: Vec<&str> = tok.split(':').collect();
+                        if split.len() == 2 {
+                            match split[0] {
+                                "t" => tok.green().to_string(),
+                                "s" => tok.red().to_string(),
+                                "g" => tok.blue().to_string(),
+                                _ => tok.to_string(),
+                            }
+                        } else {
+                            tok.to_string()
+                        }
+                    } else {
+                        tok.to_string()
+                    }
+                }
             }
-        };
-    }
-    tokens.join(" ")
+        })
+        .collect::<Vec<String>>()
+        .join(" ")
 }
